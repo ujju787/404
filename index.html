@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Simple App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+
+    nav a {
+      margin: 0 15px;
+      text-decoration: none;
+      color: #007BFF;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: 42px;
+      color: #222;
+    }
+
+    p {
+      font-size: 20px;
+    }
+
+    .offline {
+      display: none;
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to My Simple Page</h1>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/contact">Contact</a>
+  </nav>
+
+  <p>This is a basic homepage. Try visiting a broken link or going offline!</p>
+
+  <p class="offline" id="offline-msg">You are offline. Some pages may not load.</p>
+
+  <!-- Offline Warning -->
+  <script>
+    window.addEventListener('offline', () => {
+      document.getElementById('offline-msg').style.display = 'block';
+    });
+    window.addEventListener('online', () => {
+      document.getElementById('offline-msg').style.display = 'none';
+    });
+  </script>
+
+  <!-- Inlined Service Worker Registration -->
+  <script>
+    const swCode = `
+      const CACHE_NAME = 'simple-site-cache-v1';
+      const OFFLINE_URL = '/';
+
+      self.addEventListener('install', event => {
+        event.waitUntil(
+          caches.open(CACHE_NAME).then(cache => {
+            return cache.addAll([
+              '/',
+            ]);
+          })
+        );
+        self.skipWaiting();
+      });
+
+      self.addEventListener('fetch', event => {
+        event.respondWith(
+          fetch(event.request).catch(() => {
+            if (event.request.mode === 'navigate') {
+              return caches.match(OFFLINE_URL);
+            }
+          })
+        );
+      });
+
+      self.addEventListener('activate', event => {
+        event.waitUntil(
+          caches.keys().then(keys => {
+            return Promise.all(
+              keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+            );
+          })
+        );
+        self.clients.claim();
+      });
+    `;
+
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const swURL = URL.createObjectURL(blob);
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register(swURL)
+        .then(() => console.log('Service Worker Registered'))
+        .catch(err => console.error('SW Error:', err));
+    }
+  </script>
+</body>
+</html>
