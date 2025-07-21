@@ -1,8 +1,10 @@
 window.addEventListener('offline', () => {
     document.getElementById('offline-msg').style.display = 'block';
+    document.getElementById("main").style.display="none"
   });
   window.addEventListener('online', () => {
     document.getElementById('offline-msg').style.display = 'none';
+    document.getElementById("main").style.display="block"
   });
   const swCode = `
   const CACHE_NAME = 'simple-site-cache-v1';
