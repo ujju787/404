@@ -48,14 +48,6 @@
 
   <p class="offline" id="offline-msg">You are offline. Some pages may not load.</p>
 
-  <!-- Offline Warning -->
-  <script>
-    window.addEventListener('offline', () => {
-      document.getElementById('offline-msg').style.display = 'block';
-    });
-    window.addEventListener('online', () => {
-      document.getElementById('offline-msg').style.display = 'none';
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
